@@ -31,7 +31,7 @@ public:
     } eqpreset_t;
     void setPEQ(eqpreset_t);
 
-    STA320(TwoWire *wire, const uint8_t addr = STA320_ADDRESS_DEFAULT) : TwoWireDevice(wire, addr) {};
+    STA320(TwoWire& wire, const uint8_t addr = STA320_ADDRESS_DEFAULT) : TwoWireDevice(wire, addr) {};
     STA320(const uint8_t addr = STA320_ADDRESS_DEFAULT) : TwoWireDevice(addr) {};
 
     bool begin();

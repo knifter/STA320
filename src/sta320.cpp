@@ -66,10 +66,10 @@
     #define CONFF_BCLE          0x08    // Binary Output Mode Clock Loss Detection Enable
     #define CONFF_LDTE          0x10    // LRCLK Double Trigger Protection Enable
     #define CONFF_ECLE          0x20    // Auto EAPD on Clock Loss
-    #define CONFF_PWDN          0x40    // Power Down disable, 0 = Power down, 1 = Normal operation
+    #define CONFF_PWDN          0x40    // IC Power Down disable, 0 = Power down, 1 = Normal operation
     #define CONFF_EAPD          0x80    // External Amplifier Power Down disable, 0 = Power down..
-#define REG_CONFF_CONFIG    (CONFF_ECLE | CONFF_LDTE | CONFF_BCLE | CONFF_IDE  | CONFF_OCFG)
-#define REG_CONFF_INIT	    (REG_CONFF_CONFIG | CONFF_EAPD | CONFF_PWDN ) // Power up device
+#define REG_CONFF_CONFIG    (/*CONFF_ECLE |*/ /*CONFF_LDTE | */ /*CONFF_BCLE | */ /*CONFF_IDE  | */ CONFF_OCFG)
+#define REG_CONFF_INIT	    (REG_CONFF_CONFIG | CONFF_PWDN | CONFF_EAPD) // init: powerdown device
 
 #define REG_MUTE 		        0x06
     #define MUTE_MASTER         0x01    // Master Mute
@@ -143,8 +143,8 @@
         #define PWMMAP_CH2      0x40
         #define PWMMAP_CH3      0x80
         #define PWMMAP_NONE     0xC0
-#define REG_C1CFG_INIT	        (LC_LIMITER1 | PWMMAP_CH1) // 0x50
-#define REG_C2CFG_INIT	        (LC_LIMITER1 | PWMMAP_CH2) // 0x10 
+#define REG_C1CFG_INIT	        (LC_LIMITER1 | PWMMAP_CH2) // 0x50
+#define REG_C2CFG_INIT	        (LC_LIMITER1 | PWMMAP_CH1) // 0x10 
 #define REG_C3CFG_INIT	        (LC_LIMITER2 | PWMMAP_CH3) // 0xA0
 
 #define REG_TONE		        0x11
@@ -170,25 +170,25 @@ bool STA320::begin()
     bass = 0x07;
     treble = 0x07;
 
-	write8(REG_CONFA, REG_CONFA_INIT);
-	write8(REG_CONFB, REG_CONFB_INIT);
-	write8(REG_CONFC, REG_CONFC_INIT);
-	write8(REG_CONFD, REG_CONFD_INIT);
-	write8(REG_CONFE, REG_CONFE_INIT);
-	write8(REG_CONFF, REG_CONFF_INIT);
-    write8(REG_MUTE,  REG_MUTE_INIT); // start muted
+	writereg8(REG_CONFA, REG_CONFA_INIT);
+	writereg8(REG_CONFB, REG_CONFB_INIT);
+	writereg8(REG_CONFC, REG_CONFC_INIT);
+	writereg8(REG_CONFD, REG_CONFD_INIT);
+	writereg8(REG_CONFE, REG_CONFE_INIT);
+	writereg8(REG_CONFF, REG_CONFF_INIT);
+    writereg8(REG_MUTE,  REG_MUTE_INIT); // start muted
 
-    write8(REG_MVOL, REG_MVOL_INIT);
-    write8(REG_C1VOL, REG_C1VOL_INIT);
-    write8(REG_C2VOL, REG_C2VOL_INIT);
-    write8(REG_C3VOL, REG_C3VOL_INIT);
-    write8(REG_AUTO1, REG_AUTO1_INIT);
-    write8(REG_AUTO2, REG_AUTO2_INIT);
-    write8(REG_PRESET, REG_PRESET_INIT);
-    write8(REG_C1CFG, REG_C1CFG_INIT);
-    write8(REG_C2CFG, REG_C2CFG_INIT);
-    write8(REG_C3CFG, REG_C3CFG_INIT);
-	write8(REG_TONE, treble << 4 | bass);
+    writereg8(REG_MVOL, REG_MVOL_INIT);
+    writereg8(REG_C1VOL, REG_C1VOL_INIT);
+    writereg8(REG_C2VOL, REG_C2VOL_INIT);
+    writereg8(REG_C3VOL, REG_C3VOL_INIT);
+    writereg8(REG_AUTO1, REG_AUTO1_INIT);
+    writereg8(REG_AUTO2, REG_AUTO2_INIT);
+    writereg8(REG_PRESET, REG_PRESET_INIT);
+    writereg8(REG_C1CFG, REG_C1CFG_INIT);
+    writereg8(REG_C2CFG, REG_C2CFG_INIT);
+    writereg8(REG_C3CFG, REG_C3CFG_INIT);
+	writereg8(REG_TONE, treble << 4 | bass);
 
     return true;
 }
@@ -198,24 +198,24 @@ void STA320::powerDown(bool pd)
     uint8_t conff = REG_CONFF_CONFIG;
     if(!pd)
         conff |= (CONFF_EAPD | CONFF_PWDN);
-    write8(REG_CONFF, REG_CONFF_CONFIG);
+    writereg8(REG_CONFF, REG_CONFF_CONFIG);
 }
 
 void STA320::setPEQ(eqpreset_t eq)
 {
-	write8(REG_PRESET, eq & REG_PRESET_MASK);
+	writereg8(REG_PRESET, eq & REG_PRESET_MASK);
 }
 
 void STA320::setTreble(uint8_t val)
 {
-    treble = val & TONE_TTC_MASK;
-	write8(REG_TONE, treble << 4 | bass);
+    treble = val & 0x0F;
+	writereg8(REG_TONE, treble << 4 | bass);
 }
 
 void STA320::setBass(uint8_t val)
 {
-    bass = val & TONE_BTC_MASK;
-    write8(REG_TONE, treble << 4 | bass);
+    bass = val & 0x0F;
+    writereg8(REG_TONE, treble << 4 | bass);
 }
 
 void STA320::setSampleRate(samplerate_t rate)
@@ -223,7 +223,7 @@ void STA320::setSampleRate(samplerate_t rate)
 	// DBG("setSampleRate: 0x");
 	// DBG(rate, HEX);
     
-	write8(REG_CONFA, REG_CONFA_CONFIG | rate);
+	writereg8(REG_CONFA, REG_CONFA_CONFIG | rate);
 }
 
 void STA320::mute(bool mute)
@@ -234,20 +234,20 @@ void STA320::mute(bool mute)
     }else{
 	    DBGLN("UNMUTE");
     };
-    write8(REG_MUTE, REG_MUTE_CONFIG | (mute ? MUTE_MASTER : 0x00));
+    writereg8(REG_MUTE, REG_MUTE_CONFIG | (mute ? MUTE_MASTER : 0x00));
     _muted = mute;
 }
 
 void STA320::setVolume(uint8_t attn)
 {
     volume = attn;
-	write8(REG_MVOL, attn*2);
+	writereg8(REG_MVOL, attn*2);
 }
 
 void STA320::printStatus()
 {
     PRINT("\nREG_STATUS: ");
-    uint8_t st = read8(REG_STATUS);
+    uint8_t st = readreg8(REG_STATUS);
     if(st == 0x0F)
         PRINT("OKAY ");
     if((st & STATUS_PLLUL))
