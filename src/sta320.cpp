@@ -208,13 +208,13 @@ void STA320::setPEQ(eqpreset_t eq)
 
 void STA320::setTreble(uint8_t val)
 {
-    treble = val & TONE_TTC_MASK;
+    treble = val & 0x0F;
 	writereg8(REG_TONE, treble << 4 | bass);
 }
 
 void STA320::setBass(uint8_t val)
 {
-    bass = val & TONE_BTC_MASK;
+    bass = val & 0x0F;
     writereg8(REG_TONE, treble << 4 | bass);
 }
 
