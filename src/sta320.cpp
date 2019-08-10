@@ -228,12 +228,14 @@ void STA320::setSampleRate(samplerate_t rate)
 
 void STA320::mute(bool mute)
 {
+#ifdef STA320_DEBUG
 	if(mute)
     {
 		DBGLN("MUTE");
     }else{
 	    DBGLN("UNMUTE");
     };
+#endif
     writereg8(REG_MUTE, REG_MUTE_CONFIG | (mute ? MUTE_MASTER : 0x00));
     _muted = mute;
 }
@@ -246,8 +248,8 @@ void STA320::setVolume(uint8_t attn)
 
 void STA320::printStatus()
 {
-    PRINT("\nREG_STATUS: ");
     uint8_t st = readreg8(REG_STATUS);
+    PRINT("\nREG_STATUS: ");
     if(st == 0x0F)
         PRINT("OKAY ");
     if((st & STATUS_PLLUL))
