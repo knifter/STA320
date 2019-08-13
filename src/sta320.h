@@ -38,7 +38,8 @@ public:
     void printStatus();
 
     //actions
-    void powerDown(bool pd);
+    void powerUp();
+    void powerDown();
     void mute(bool mute = true);
     void unmute() { mute(false); };
     bool isMuted() { return _muted; };

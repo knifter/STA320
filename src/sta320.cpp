@@ -68,18 +68,17 @@
     #define CONFF_ECLE          0x20    // Auto EAPD on Clock Loss
     #define CONFF_PWDN          0x40    // IC Power Down disable, 0 = Power down, 1 = Normal operation
     #define CONFF_EAPD          0x80    // External Amplifier Power Down disable, 0 = Power down..
-#define REG_CONFF_CONFIG    (/*CONFF_ECLE |*/ /*CONFF_LDTE | */ /*CONFF_BCLE | */ /*CONFF_IDE  | */ CONFF_OCFG)
-#define REG_CONFF_INIT	    (REG_CONFF_CONFIG | CONFF_PWDN | CONFF_EAPD) // init: powerdown device
+#define REG_CONFF_INIT        (CONFF_ECLE | CONFF_IDE | CONFF_OCFG)
 
 #define REG_MUTE 		        0x06
     #define MUTE_MASTER         0x01    // Master Mute
     #define MUTE_C1M            0x02    // Channel 1 Mute
     #define MUTE_C2M            0x04    // Channel 2 Mute
     #define MUTE_C3M            0x08    // Channel 3 Mute
-    #define MUTE_TFRB           0x10    // Thermal Fault Mute disable (DEPRACATED)
-    #define MUTE_QXEN           0x40    // Qxpander Enable (DEPRACATED)
-    #define MUTE_QFILTER        0x80    // Qfilter disable (i.s.o. Simple LPF) (DEPRACATED)
-#define REG_MUTE_CONFIG         0x00
+    #define MUTE_TFRB           0x10    // Thermal Fault Mute disable (DEPRECATED)
+    #define MUTE_QXEN           0x40    // Qxpander Enable (DEPRECATED)
+    #define MUTE_QFILTER        0x80    // Qfilter disable (i.s.o. Simple LPF) (DEPRECATED)
+#define REG_MUTE_CONFIG         MUTE_C3M
 #define REG_MUTE_INIT	     MUTE_MASTER
 
 #define REG_MVOL 		        0x07
@@ -193,12 +192,14 @@ bool STA320::begin()
     return true;
 }
 
-void STA320::powerDown(bool pd)
+void STA320::powerDown()
 {
-    uint8_t conff = REG_CONFF_CONFIG;
-    if(!pd)
-        conff |= (CONFF_EAPD | CONFF_PWDN);
-    writereg8(REG_CONFF, REG_CONFF_CONFIG);
+    writereg8(REG_CONFF, REG_CONFF_INIT);
+}
+
+void STA320::powerUp()
+{
+    writereg8(REG_CONFF, REG_CONFF_INIT | CONFF_EAPD | CONFF_PWDN);
 }
 
 void STA320::setPEQ(eqpreset_t eq)
