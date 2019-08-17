@@ -44,17 +44,17 @@ public:
     void unmute() { mute(false); };
     bool isMuted() { return _muted; };
     void setVolume(uint8_t vol);
-    void setTreble(uint8_t);
-    void setBass(uint8_t);
+    int8_t setTreble(int8_t db);
+    int8_t setBass(int8_t db);
 
-    uint8_t volume;
-    uint8_t bass;
-    uint8_t treble;
+	uint8_t volume;
+	uint8_t _reg_tone;
+
 private:
     STA320(const STA320&) = delete;
     STA320& operator=(STA320 const&) = delete;
     
-	uint8_t _tone = 0x77;
+	// uint8_t _tone = 0x77;
     bool _muted = true;
 };
 

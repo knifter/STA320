@@ -149,7 +149,7 @@
 #define REG_TONE		        0x11
     #define TONE_BTC_MASK       0x0F    // Bass
     #define TONE_TTC_MASK       0xF0    // Treble
-
+#define REG_TONE_INIT			0x33	// 0 db, 0 db
 #define REG_STATUS              0x2D
     #define STATUS_TWARN        0x01
     #define STATUS_FAULT        0x02
@@ -157,17 +157,17 @@
     #define STATUS_OCWARN       0x08
     #define STATUS_PLLUL        0x80
 
-#define DBG(x)          Serial.print("STA: "); Serial.print(x);
-#define DBGLN(x)        Serial.print("STA: "); Serial.println(x);
+// #ifndef DBG
+// 	#define DBG(x)          Serial.print("STA: "); Serial.print(x);
+// 	#define DBGLN(x)        Serial.print("STA: "); Serial.println(x);
 #define PRINT(x)        Serial.print(x);
+// #endif
 
 bool STA320::begin()
 {
     TwoWireDevice::begin();
 
-    volume = REG_MVOL_INIT; // -126 dB
-    bass = 0x07;
-    treble = 0x07;
+	_reg_tone = REG_TONE_INIT;
 
 	writereg8(REG_CONFA, REG_CONFA_INIT);
 	writereg8(REG_CONFB, REG_CONFB_INIT);
@@ -187,7 +187,7 @@ bool STA320::begin()
     writereg8(REG_C1CFG, REG_C1CFG_INIT);
     writereg8(REG_C2CFG, REG_C2CFG_INIT);
     writereg8(REG_C3CFG, REG_C3CFG_INIT);
-	writereg8(REG_TONE, treble << 4 | bass);
+	writereg8(REG_TONE, REG_TONE_INIT);
 
     return true;
 }
@@ -207,16 +207,28 @@ void STA320::setPEQ(eqpreset_t eq)
 	writereg8(REG_PRESET, eq & REG_PRESET_MASK);
 }
 
-void STA320::setTreble(uint8_t val)
+int8_t STA320::setTreble(int8_t db)
 {
-    treble = val & 0x0F;
-	writereg8(REG_TONE, treble << 4 | bass);
+	// limit to -12..12 db
+	if(db < -12)	db = -12;
+	if(db > +12) 	db = +12;
+	_reg_tone &= 0x0F; // keep bass
+	_reg_tone |= ((0x07 + (db >> 1)) << 4);
+	// DBG("tone = %x", _reg_tone);
+	writereg8(REG_TONE, _reg_tone);
+	return db;// & 0xFE; // drop the last bit
 }
 
-void STA320::setBass(uint8_t val)
+int8_t STA320::setBass(int8_t db)
 {
-    bass = val & 0x0F;
-    writereg8(REG_TONE, treble << 4 | bass);
+	// limit to -12..12 db
+	if(db < -12)	db = -12;
+	if(db > +12) 	db = +12;
+	_reg_tone &= 0xF0; // keep treble
+	_reg_tone |= (0x07 + (db >> 1));
+	// DBG("tone = %x", _reg_tone);
+	writereg8(REG_TONE, _reg_tone);
+	return db; // drop the last bit
 }
 
 void STA320::setSampleRate(samplerate_t rate)
@@ -243,8 +255,10 @@ void STA320::mute(bool mute)
 
 void STA320::setVolume(uint8_t attn)
 {
-    volume = attn;
-	writereg8(REG_MVOL, attn*2);
+	if(attn > 127)	attn = 127;
+	volume = attn;
+	writereg8(REG_MVOL, attn << 1); // 0.5 dB/bit
+	// return attn;
 }
 
 void STA320::printStatus()
