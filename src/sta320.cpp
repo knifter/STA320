@@ -253,12 +253,12 @@ void STA320::mute(bool mute)
     _muted = mute;
 }
 
-void STA320::setVolume(uint8_t attn)
+int8_t STA320::setVolume(int8_t attn)
 {
 	if(attn > 127)	attn = 127;
-	volume = attn;
+	if(attn < 0)	attn = 0;
 	writereg8(REG_MVOL, attn << 1); // 0.5 dB/bit
-	// return attn;
+	return attn;
 }
 
 void STA320::printStatus()

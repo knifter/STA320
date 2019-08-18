@@ -43,11 +43,10 @@ public:
     void mute(bool mute = true);
     void unmute() { mute(false); };
     bool isMuted() { return _muted; };
-    void setVolume(uint8_t vol);
+    int8_t setVolume(int8_t vol);
     int8_t setTreble(int8_t db);
     int8_t setBass(int8_t db);
 
-	uint8_t volume;
 	uint8_t _reg_tone;
 
 private:
