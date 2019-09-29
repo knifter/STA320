@@ -38,6 +38,10 @@ public:
     void printStatus();
 
     //actions
+    void setMiamiMode(bool enabled);
+    void setDeEmph(bool enabled);
+    void setDSPByPass(bool enabled);
+
     void powerUp();
     void powerDown();
     void mute(bool mute = true);
@@ -48,6 +52,7 @@ public:
     int8_t setBass(int8_t db);
 
 	uint8_t _reg_tone;
+    uint8_t _reg_confd;
 
 private:
     STA320(const STA320&) = delete;
