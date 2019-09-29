@@ -105,21 +105,23 @@
         #define AMGC_NOCLIP     0x10    // AC no clipping
         #define AMGC_CLIP       0x20    // AC limited clipping (10%)
         #define AMGC_DRC        0x30    // DRC Nighttime listening mode
-    #define AUTO1_AMPS          0x80    // AutoMove auto prescale
+    #define AUTO1_AMPS          0x80    // AutoMode auto prescale
         #define AMPS_18DB       0x00
         #define AMPS_USER       0x80   
-#define REG_AUTO1_INIT      (AMEQ_PRESET | AMV_STD | AMGC_NOCLIP | AMPS_18DB)
+#define REG_AUTO1_INIT      	(AMEQ_PRESET | AMV_STD | AMGC_NOCLIP | AMPS_18DB)
 
 #define REG_AUTO2		        0x0C
     #define AUTO2_AMAME         0x01    // AutoMode AM switching enable
     #define AUTO2_AMAM_MASK     0x0E    // AutoMode AM switching Frequency Selection
     #define AUTO2_XO_MASK       0xF0    // AutoMode Crossover Frequency selection
         #define XO_USER         0x00
-        #define XO_80HZ         0x10    // Use this as reference, add 1 for every 20 Hz up to 360 Hz
+        #define XO_80HZ         0x10    
         #define XO_100HZ        0x20
         #define XO_120HZ        0x30
         #define XO_140HZ        0x40
-#define REG_AUTO2_INIT	        0x00
+		// ... add 1 for every 20 Hz up to 360 Hz
+		#define XO_360HZ		0xF0
+#define REG_AUTO2_INIT	        (XO_USER)
 
 #define REG_PRESET              0x0D
 #define REG_PRESET_MASK         0x1F
@@ -149,6 +151,22 @@
     #define TONE_BTC_MASK       0x0F    // Bass
     #define TONE_TTC_MASK       0xF0    // Treble
 #define REG_TONE_INIT			0x33	// 0 db, 0 db
+
+#define REG_LIM1_RATE			0x12
+#define REG_LIM1_ATTREL			0x13
+#define REG_LIM2_RATE			0x14
+#define REG_LIM2_ATTREL			0x15
+	#define LIMx_ATTACK_MASK	0xF0
+	#define LIMx_RELEASE_MASK	0x0F
+
+#define REG_CFADDR				0x16
+// Registers B1, B2, A1, A2 B0, each 24 bits = 15 registers
+#define REG_CFUD				0x26
+	#define CFUD_W1				0x01	// Write 1
+	#define CFUD_WA				0x02	// Write all
+	#define CFUD_R1				0x04	// Read 1
+	#define CFUD_RA				0x08	// Read all
+
 #define REG_STATUS              0x2D
     #define STATUS_TWARN        0x01
     #define STATUS_FAULT        0x02
